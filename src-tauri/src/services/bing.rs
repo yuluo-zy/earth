@@ -6,7 +6,7 @@ use async_trait::async_trait;
 use futures_util::future::ok;
 use tracing::{debug, info};
 use crate::plugins::utils::download_file;
-use crate::services::{config, ImagesTrait, PaperInfo, PhotoService, WallpaperTrait};
+use crate::services::{config, PaperInfo, PhotoService, WallpaperTrait};
 use crate::services::storage::Storage;
 
 const BING_URL: &str = "https://www.bing.com/HPImageArchive.aspx?&format=js&nc=1612409408851&pid=hp&FORM=BEHPTB&uhd=1&uhdwidth=3840&uhdheight=2160";
@@ -65,8 +65,8 @@ impl BingPrimitiveResources {
     }
     pub async fn init_resources(storage: &mut Storage, index: u8, number: u8) -> Result<()> {
         let res = Self::get_resources(index, number).await?;
-        let images: Vec<Box<dyn WallpaperTrait>> = res.images
-            .iter().map(|value| Box::new(value.clone())).collect();
+        let images: Vec<Box<Images>> = res.images
+            .iter().map(|value| Box::new(*value.clone())).collect();
         storage.set_storage(PhotoService::BingList, images);
         Ok(())
     }

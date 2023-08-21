@@ -14,7 +14,7 @@ mod storage;
 mod cmd;
 
 
-#[derive(Debug,Clone,Serialize, Deserialize)]
+#[derive(Debug,Clone,Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub enum PhotoService {
     BingDaily,
     BingList,

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 use crate::services::{bing, PaperInfo, PhotoService, WallpaperTrait};
 use serde::{Deserialize, Serialize};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use once_cell::sync::Lazy;
 use crate::services::bing::BingPrimitiveResources;
@@ -30,7 +30,6 @@ impl PageResult {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Storage {
     storage: HashMap<PhotoService, Vec<Box<dyn WallpaperTrait>>>,
 }
@@ -45,7 +44,7 @@ impl Default for Storage {
 
 impl Storage {
     /// 初始化请求缓存
-    pub async fn init_storage(&mut self, type_of: &PhotoService) {
+    pub async fn init_storage(&mut self, type_of: &PhotoService) -> Result<()> {
         match type_of {
             PhotoService::BingDaily => {}
             PhotoService::BingList => {
@@ -55,18 +54,25 @@ impl Storage {
             PhotoService::Unsplash => {}
             PhotoService::Earth => {}
         }
+        Ok(())
     }
 
     pub async fn get_page(&mut self, page: Page) -> Result<PageResult> {
         if let Some(result) = self.storage.get(&page.type_of) {
           // TODO:: 针对查询进行数组切片
-            let page_info = result.iter().map(|value| value.get_wallpaper_info()?).collect();
+            let mut page_info = vec![];
+            for item in result.iter() {
+                page_info.push(item.get_wallpaper_info()?);
+            }
+
             return PageResult::build(page.clone(), page_info);
         }
 
-        self.init_storage(&page.type_of).await;
-        // 回调自身
-        self.get_page(page).await
+        // self.init_storage(&page.type_of).await?;
+
+        Err(anyhow!("init storage"))
+        // // 回调自身
+        // self.get_page(page).await
     }
 
     pub fn set_storage(&mut self, key: PhotoService, value: Vec<Box<dyn WallpaperTrait>>) {
@@ -207,6 +213,6 @@ impl Storage {
 //   }
 // }
 
-pub static STORAGE: Lazy<Mutex<Storage>> = Lazy::new(|| {
-    Mutex::new(Storage::default())
-});
+// pub static STORAGE: Lazy<Mutex<Storage>> = Lazy::new(|| {
+//     Mutex::new(Storage::default())
+// });
