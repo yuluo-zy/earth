@@ -3,9 +3,11 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use futures_util::future::ok;
 use tracing::{debug, info};
 use crate::plugins::utils::download_file;
-use crate::services::{config, ImagesTrait, WallpaperTrait};
+use crate::services::{config, ImagesTrait, PaperInfo, PhotoService, WallpaperTrait};
+use crate::services::storage::Storage;
 
 const BING_URL: &str = "https://www.bing.com/HPImageArchive.aspx?&format=js&nc=1612409408851&pid=hp&FORM=BEHPTB&uhd=1&uhdwidth=3840&uhdheight=2160";
 
@@ -48,18 +50,25 @@ impl Images {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PrimitiveResources {
+pub struct BingPrimitiveResources {
     index: Option<u8>,
     number: Option<u8>,
     pub images: Vec<Images>,
 }
 
-impl PrimitiveResources {
+impl BingPrimitiveResources {
     pub async fn get_resources(index: u8, number: u8) -> Result<Self> {
         let mut res = reqwest::get(get_url(index, number)).await?.json::<Self>().await?;
         res.index = Some(index);
         res.number = Some(number);
         Ok(res)
+    }
+    pub async fn init_resources(storage: &mut Storage, index: u8, number: u8) -> Result<()> {
+        let res = Self::get_resources(index, number).await?;
+        let images: Vec<Box<dyn WallpaperTrait>> = res.images
+            .iter().map(|value| Box::new(value.clone())).collect();
+        storage.set_storage(PhotoService::BingList, images);
+        Ok(())
     }
 }
 
@@ -80,6 +89,10 @@ impl WallpaperTrait for Images {
         let path = app_folder.join(filename);
         download_file(&Client::new(), self.hosts().as_str(), path.as_path()).await?;
         Ok(path)
+    }
+
+    fn get_wallpaper_info(&self) -> Result<PaperInfo> {
+        todo!()
     }
 }
 

@@ -1,18 +1,77 @@
 use std::collections::HashMap;
-use crate::services::{bing, PhotoService, WallpaperTrait};
+use std::sync::Mutex;
+use crate::services::{bing, PaperInfo, PhotoService, WallpaperTrait};
 use serde::{Deserialize, Serialize};
+use anyhow::Result;
 
 use once_cell::sync::Lazy;
+use crate::services::bing::BingPrimitiveResources;
+
 const BING_EXPIRE_TIME: i64 = 60 * 60 * 12;
 
+#[derive(Clone)]
 pub struct Page {
-  pub type_of: PhotoService,
-  pub index: Option<u8>,
-  pub page_number: Option<u8>
+    pub type_of: PhotoService,
+    pub index: Option<u8>,
+    pub page_number: Option<u8>,
 }
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+
+pub struct PageResult {
+    pub page: Page,
+    pub result: Vec<PaperInfo>,
+}
+
+impl PageResult {
+    pub fn build(page: Page, result: Vec<PaperInfo>) -> Result<Self> {
+        Ok(Self {
+            page,
+            result,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Storage {
-  pub storage: HashMap<PhotoService, Vec<Box<dyn WallpaperTrait>>>
+    storage: HashMap<PhotoService, Vec<Box<dyn WallpaperTrait>>>,
+}
+
+impl Default for Storage {
+    fn default() -> Self {
+        Self{
+            storage: HashMap::new()
+        }
+    }
+}
+
+impl Storage {
+    /// 初始化请求缓存
+    pub async fn init_storage(&mut self, type_of: &PhotoService) {
+        match type_of {
+            PhotoService::BingDaily => {}
+            PhotoService::BingList => {
+                BingPrimitiveResources::init_resources(self, 0,0).await?;
+            }
+            PhotoService::Pexels => {}
+            PhotoService::Unsplash => {}
+            PhotoService::Earth => {}
+        }
+    }
+
+    pub async fn get_page(&mut self, page: Page) -> Result<PageResult> {
+        if let Some(result) = self.storage.get(&page.type_of) {
+          // TODO:: 针对查询进行数组切片
+            let page_info = result.iter().map(|value| value.get_wallpaper_info()?).collect();
+            return PageResult::build(page.clone(), page_info);
+        }
+
+        self.init_storage(&page.type_of).await;
+        // 回调自身
+        self.get_page(page).await
+    }
+
+    pub fn set_storage(&mut self, key: PhotoService, value: Vec<Box<dyn WallpaperTrait>>) {
+        self.storage.insert(key, value);
+    }
 }
 
 // impl Cache {
@@ -148,13 +207,6 @@ pub struct Storage {
 //   }
 // }
 
-pub static CACHE: Lazy<Mutex<Cache>> = Lazy::new(|| {
-  Mutex::new(Cache {
-    bing_daily: bing::Images::default(),
-    bing_list: vec![],
-    timestamp: Utc::now().timestamp(),
-    pexels_list: vec![],
-    current_idx: 0,
-    cache_list: vec![],
-  })
+pub static STORAGE: Lazy<Mutex<Storage>> = Lazy::new(|| {
+    Mutex::new(Storage::default())
 });

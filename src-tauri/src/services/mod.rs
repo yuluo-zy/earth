@@ -12,10 +12,9 @@ pub mod config;
 mod bing;
 mod storage;
 mod cmd;
-mod scheduler;
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug,Clone,Serialize, Deserialize)]
 pub enum PhotoService {
     BingDaily,
     BingList,
