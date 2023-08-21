@@ -6,7 +6,6 @@ mod plugins;
 
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
-use services::config::EarthConfig;
 
 fn main() {
 
@@ -16,12 +15,9 @@ fn main() {
 
     info!("app init");
 
-    EarthConfig::create_app_folder().expect("create app folder failed!");
-
     tauri::Builder::default()
         // .invoke_handler(tauri::generate_handler![greet])
         .system_tray(plugins::system_tray::create_tray())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-

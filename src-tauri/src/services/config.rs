@@ -1,10 +1,16 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use anyhow::{anyhow, Result};
+use once_cell::sync::Lazy;
 
 const FILE_CONFIG: &str = "earth.toml";
 const FILE_PATH: &str = ".earth";
+
+
+pub static  GLOBAL_SETTINGS: Lazy<Mutex<EarthConfig>> = Lazy::new(|| {Mutex::new(EarthConfig::get_config().unwrap())});
+
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EarthConfig {
@@ -12,7 +18,6 @@ pub struct EarthConfig {
     pub rotate_source: Vec<String>,
     pub randomly: bool,
     pub interval_minute: u64,
-    pub pexels_api_key: String
 }
 
 impl Default for EarthConfig {
@@ -22,13 +27,12 @@ impl Default for EarthConfig {
             rotate_source: vec![],
             randomly: false,
             interval_minute: 30,
-            pexels_api_key: String::from(" ")
         }
     }
 }
 
 impl EarthConfig {
-    pub fn create_app_folder() -> Result<()> {
+    pub fn init_app_folder() -> Result<()> {
         let home_dir = tauri::api::path::home_dir();
 
         match home_dir {
@@ -50,7 +54,7 @@ impl EarthConfig {
                 let app_config_dir = Path::new(&home_dir).join(FILE_PATH);
 
                 if !app_config_dir.exists() {
-                    Self::create_app_folder()?
+                    Self::init_app_folder()?
                 }
                 Ok(app_config_dir)
             }
