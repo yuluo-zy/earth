@@ -50,7 +50,7 @@ impl Storage {
             PhotoService::BingDaily => {}
             PhotoService::BingList => {
                 info!("bing 清单缓存ing");
-                BingPrimitiveResources::init_resources(self, 0, 0).await?;
+                BingPrimitiveResources::init_resources(self, 1, 1).await?;
             }
             PhotoService::Pexels => {}
             PhotoService::Unsplash => {}

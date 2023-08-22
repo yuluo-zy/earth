@@ -59,6 +59,7 @@ pub struct BingPrimitiveResources {
 impl BingPrimitiveResources {
     pub async fn get_resources(index: u8, number: u8) -> Result<Self> {
         let mut res = reqwest::get(get_url(index, number)).await?.json::<Self>().await?;
+        info!("{:?}", res);
         res.index = Some(index);
         res.number = Some(number);
         Ok(res)

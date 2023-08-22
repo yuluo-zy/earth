@@ -6,8 +6,8 @@ export default function Wallpaper() {
         const get_page = async () => {
                 console.info("lkjlkj")
                 await invoke('get_photo', {page:{
-                        index: 0,
-                        page_number: 0,
+                        index: 1,
+                        page_number: 1,
                         type_of: "BingList"
                 }})
         }
