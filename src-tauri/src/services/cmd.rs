@@ -1,4 +1,8 @@
-use std::sync::Arc;
+
+use tauri::async_runtime::Mutex;
+use tauri::State;
+use tracing::{debug, error, info};
+use crate::services::storage::{Page, PageResult, Storage};
 //
 // use crate::services::{bing, pexels, AsyncProcessMessage, PhotoService};
 // use crate::{cache, config, services};
@@ -129,3 +133,17 @@ use std::sync::Arc;
 // pub async fn view_photo(handle: tauri::AppHandle, href: String) {
 //   services::view_photo(handle, href);
 // }
+
+
+#[tauri::command]
+pub async fn get_photo<'a>(page: Page, storage:State<'a, Mutex<Storage>>) -> Result<PageResult, String> {
+   info!("get photo: {:?}", page);
+   let mut cache = storage.lock().await;
+    match cache.get_page(page).await {
+       Ok(res) => {Ok(res)}
+       Err(error) => {
+          error!("{:?}", error);
+          Err(String::from("get photo error"))
+       }
+    }
+}

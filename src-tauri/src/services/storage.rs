@@ -1,21 +1,22 @@
 use std::collections::HashMap;
-use std::sync::Mutex;
-use crate::services::{bing, PaperInfo, PhotoService, WallpaperTrait};
+use crate::services::{PaperInfo, PhotoService, WallpaperTrait};
 use serde::{Deserialize, Serialize};
 use anyhow::{anyhow, Result};
 
 use once_cell::sync::Lazy;
+use tauri::async_runtime::Mutex;
+use tracing::info;
 use crate::services::bing::BingPrimitiveResources;
 
 const BING_EXPIRE_TIME: i64 = 60 * 60 * 12;
 
-#[derive(Clone)]
+#[derive(Debug,Clone, Serialize, Deserialize)]
 pub struct Page {
     pub type_of: PhotoService,
     pub index: Option<u8>,
     pub page_number: Option<u8>,
 }
-
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PageResult {
     pub page: Page,
     pub result: Vec<PaperInfo>,
@@ -48,6 +49,7 @@ impl Storage {
         match type_of {
             PhotoService::BingDaily => {}
             PhotoService::BingList => {
+                info!("bing 清单缓存ing");
                 BingPrimitiveResources::init_resources(self, 0, 0).await?;
             }
             PhotoService::Pexels => {}
@@ -59,6 +61,7 @@ impl Storage {
 
     pub async fn get_page(&mut self, page: Page) -> Result<PageResult> {
         if let None = self.storage.get(&page.type_of) {
+            info!("初始化缓存");
             self.init_storage(&page.type_of).await?;
         }
         let result = self.storage.get(&page.type_of).ok_or(anyhow!("获取缓存错误"))?;

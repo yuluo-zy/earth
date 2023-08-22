@@ -9,9 +9,9 @@ use async_trait::async_trait;
 use tracing::info;
 
 pub mod config;
-mod bing;
-mod storage;
-mod cmd;
+pub mod bing;
+pub mod storage;
+pub mod cmd;
 
 
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, Eq, PartialEq)]
@@ -22,7 +22,7 @@ pub enum PhotoService {
     Unsplash,
     Earth,
 }
-
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PaperInfo {
     pub link: String,
     pub title: String,
@@ -30,7 +30,7 @@ pub struct PaperInfo {
 }
 
 #[async_trait]
-pub trait WallpaperTrait {
+pub trait WallpaperTrait: Send+ Sync {
     async fn set_wallpaper(&self) -> Result<()>;
     async fn save_wallpaper(&self) -> Result<PathBuf>;
     fn get_wallpaper_info(&self) -> Result<PaperInfo>;

@@ -65,6 +65,7 @@ impl BingPrimitiveResources {
     }
     pub async fn init_resources(storage: &mut Storage, index: u8, number: u8) -> Result<()> {
         let res = Self::get_resources(index, number).await?;
+        info!("{:?}", res);
         let mut images: Vec<Box<dyn WallpaperTrait>> = vec![];
         for item in res.images.iter() {
             images.push(Box::new(item.clone()));
