@@ -10,6 +10,8 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@douyinfe/semi-icons": "^2.41.3",
+    "@douyinfe/semi-illustrations": "^2.41.3",
     "@douyinfe/semi-ui": "^2.41.2",
     "@loadable/component": "^5.13.2",
     "@tauri-apps/api": "^1.4.0",
@@ -25,6 +27,8 @@
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
+    "less": "^4.1.2",
+    "less-loader": "11.1.3",
     "prettier": "^3.0.2",
     "rollup-plugin-javascript-obfuscator": "^1.0.4",
     "stylelint": "^15.10.3",

@@ -1,11 +1,10 @@
-import { GlobalContext } from "@/context";
+import { GlobalContext } from '@/context';
 import { useStorage } from '@/utils/useStorage.ts';
 import { useEffect } from 'react';
 import changeTheme from '@/utils/changeTheme.ts';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import lazyload from '@/utils/lazyload.tsx';
+import LayoutPage from '@/layout.tsx';
 
-const WallPaperComponent = lazyload(() => import("@/page/wallpaper"))
 
 function App() {
     const [theme, setTheme] = useStorage("theme", "light");
@@ -22,7 +21,7 @@ function App() {
       <BrowserRouter>
       <GlobalContext.Provider value={contextValue}>
           <Routes>
-              <Route path={'/'} element={<WallPaperComponent />} />
+              <Route path={'/'} element={<LayoutPage />} />
           </Routes>
       </GlobalContext.Provider>
       </BrowserRouter>
