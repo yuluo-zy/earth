@@ -36,7 +36,7 @@ pub struct Storage {
 
 impl Default for Storage {
     fn default() -> Self {
-        Self{
+        Self {
             storage: HashMap::new()
         }
     }
@@ -48,7 +48,7 @@ impl Storage {
         match type_of {
             PhotoService::BingDaily => {}
             PhotoService::BingList => {
-                BingPrimitiveResources::init_resources(self, 0,0).await?;
+                BingPrimitiveResources::init_resources(self, 0, 0).await?;
             }
             PhotoService::Pexels => {}
             PhotoService::Unsplash => {}
@@ -58,21 +58,17 @@ impl Storage {
     }
 
     pub async fn get_page(&mut self, page: Page) -> Result<PageResult> {
-        if let Some(result) = self.storage.get(&page.type_of) {
-          // TODO:: 针对查询进行数组切片
-            let mut page_info = vec![];
-            for item in result.iter() {
-                page_info.push(item.get_wallpaper_info()?);
-            }
-
-            return PageResult::build(page.clone(), page_info);
+        if let None = self.storage.get(&page.type_of) {
+            self.init_storage(&page.type_of).await?;
+        }
+        let result = self.storage.get(&page.type_of).ok_or(anyhow!("获取缓存错误"))?;
+        // TODO:: 针对查询进行数组切片
+        let mut page_info = vec![];
+        for item in result.iter() {
+            page_info.push(item.get_wallpaper_info()?);
         }
 
-        // self.init_storage(&page.type_of).await?;
-
-        Err(anyhow!("init storage"))
-        // // 回调自身
-        // self.get_page(page).await
+        return PageResult::build(page.clone(), page_info);
     }
 
     pub fn set_storage(&mut self, key: PhotoService, value: Vec<Box<dyn WallpaperTrait>>) {

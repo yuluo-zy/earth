@@ -1,14 +1,31 @@
+import { GlobalContext } from "@/context";
+import { useStorage } from '@/utils/useStorage.ts';
+import { useEffect } from 'react';
+import changeTheme from '@/utils/changeTheme.ts';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import lazyload from '@/utils/lazyload.tsx';
+
+const WallPaperComponent = lazyload(() => import("@/page/wallpaper"))
+
 function App() {
-  // const [greetMsg, setGreetMsg] = useState("");
-  // const [name, setName] = useState("");
-  //
-  // async function greet() {
-  //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  //   setGreetMsg(await invoke("greet", { name }));
-  // }
+    const [theme, setTheme] = useStorage("theme", "light");
+    useEffect(() => {
+        changeTheme(theme as string);
+    }, [theme]);
+
+    const contextValue = {
+        theme,
+        setTheme,
+    };
 
   return (
-   <div>klk</div>
+      <BrowserRouter>
+      <GlobalContext.Provider value={contextValue}>
+          <Routes>
+              <Route path={'/'} element={<WallPaperComponent />} />
+          </Routes>
+      </GlobalContext.Provider>
+      </BrowserRouter>
   );
 }
 

@@ -14,25 +14,27 @@ mod storage;
 mod cmd;
 
 
-#[derive(Debug,Clone,Serialize, Deserialize, Hash, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub enum PhotoService {
     BingDaily,
     BingList,
     Pexels,
     Unsplash,
-    Earth
+    Earth,
 }
-pub struct PaperInfo {
 
+pub struct PaperInfo {
+    pub link: String,
+    pub title: String,
+    pub content: String,
 }
+
 #[async_trait]
 pub trait WallpaperTrait {
     async fn set_wallpaper(&self) -> Result<()>;
     async fn save_wallpaper(&self) -> Result<PathBuf>;
     fn get_wallpaper_info(&self) -> Result<PaperInfo>;
 }
-
-
 
 
 // pub fn view_photo(handle: tauri::AppHandle, href: String) {

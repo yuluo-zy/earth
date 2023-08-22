@@ -11,15 +11,25 @@
   },
   "dependencies": {
     "@douyinfe/semi-ui": "^2.41.2",
+    "@loadable/component": "^5.13.2",
     "@tauri-apps/api": "^1.4.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router": "^6.15.0",
+    "react-router-dom": "^6.15.0",
+    "zustand": "^4.4.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.4.0",
+    "@types/loadable__component": "^5.13.4",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
+    "prettier": "^3.0.2",
+    "rollup-plugin-javascript-obfuscator": "^1.0.4",
+    "stylelint": "^15.10.3",
+    "stylelint-config-css-modules": "^4.3.0",
+    "stylelint-config-standard": "^34.0.0",
     "typescript": "^5.0.2",
     "vite": "^4.4.4"
   }
