@@ -97,7 +97,7 @@ impl WallpaperTrait for Images {
 
     fn get_wallpaper_info(&self) -> Result<PaperInfo> {
        Ok(PaperInfo{
-           link: self.url.clone(),
+           link: "https://www.bing.com/".to_string() + &self.url.clone(),
            title: self.title.clone(),
            content: self.copyright.clone(),
        })
