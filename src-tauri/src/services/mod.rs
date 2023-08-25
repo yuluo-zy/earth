@@ -12,6 +12,7 @@ pub mod config;
 pub mod bing;
 pub mod storage;
 pub mod cmd;
+pub mod earth;
 
 
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, Eq, PartialEq)]
